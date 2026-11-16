@@ -1,1 +1,19 @@
 
+countries:
+  israel:
+    code: "IL"
+    max_price_usd: 74.99        # Лимит de minimis без пошлин
+    currency: "USD"
+    free_shipping_threshold: 49.00
+    
+  uae:
+    code: "UAE"
+    max_price_usd: 270.00       # Высокий порог в ОАЭ
+    currency: "AED"
+    free_shipping_threshold: 49.00
+    
+  colombia:
+    code: "CO"
+    max_price_usd: 200.00
+    currency: "USD"
+    free_shipping_threshold: 35.00
