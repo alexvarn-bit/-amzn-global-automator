@@ -1,10 +1,32 @@
-# GitHub Copilot Instructions for amzn-global-automator
 
-## Project Overview
-Automated, zero-infrastructure multi-regional Amazon affiliate deal publisher using GitHub Actions and Telegram channels.
+import os
+import yaml
+import requests
 
-## Core Architectural Rules
-1. **Compliance First**: Every generated post or link must adhere to regional *de minimis* thresholds defined in `config/countries.yaml`. No items exceeding customs limits should be processed for strict regions (e.g., Israel ~$74.99).
-2. **Tag Mapping**: Always inject the correct affiliate tag mapped in `config/channels.yaml` depending on the target country channel.
-3. **Zero-Infra**: No external servers. All automation runs on GitHub Actions scheduled workflows (`.github/workflows/publisher.yml`).
-4. **Code Style**: Clean, modular Python 3.10+ scripts located in `src/`, with robust error handling for API limits and network timeouts.
+def load_yaml(filepath):
+    with open(filepath, 'r', encoding='utf-8') as f:
+        return yaml.safe_load(f)
+
+def run_publisher():
+    # Загружаем конфигурации из папки config
+    config_dir = os.path.join(os.path.dirname(__file__), '../config')
+    countries = load_yaml(os.path.join(config_dir, 'countries.yaml'))['countries']
+    channels_config = load_yaml(os.path.join(config_dir, 'channels.yaml'))['channels']
+    
+    telegram_token = os.getenv('TELEGRAM_BOT_TOKEN')
+    
+    print(f"Loaded {len(channels_config)} target channels for publishing.")
+    
+    for channel in channels_config:
+        channel_id = channel['id']
+        country_key = channel['country']
+        tag = channel['associate_tag']
+        
+        country_limit = countries.get(country_key, {}).get('max_price_usd', 1000)
+        print(f"Processing channel {channel_id} for country '{country_key}' (Limit: ${country_limit}, Tag: {tag})")
+        
+        # Здесь будет логика получения товаров (например, из Amazon PA-API)
+        # И фильтрация по country_limit перед отправкой через Telegram Bot API
+
+if __name__ == "__main__":
+    run_publisher()
