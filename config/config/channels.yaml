@@ -1,0 +1,11 @@
+channels:
+  - id: "@uae_smart_deals"
+    country: "uae"
+    language: "ru"
+    associate_tag: "myproject-uae-20"
+      
+  - id: "@israel_amazon_il"
+    country: "israel"
+    language: "ru"
+    associate_tag: "myproject-il-20"
+    max_price_usd: 74.99
