@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       use_mock_data:
-        description: "Отправить тестовый товар из mock-фида в Telegram"
+        description: "Use the deterministic mock feed for a Telegram smoke test"
         required: true
         type: boolean
         default: true
@@ -32,22 +32,14 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install dependency
         run: python -m pip install requests
-
-      - name: Restore SQLite publication state
-        uses: actions/cache@v4
-        with:
-          path: data/state.db
-          key: deal-state-${{ github.ref }}-${{ github.run_id }}
-          restore-keys: |
-            deal-state-${{ github.ref }}-
 
       - name: Run publisher
         run: python main.py
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHANNEL_ID: ${{ vars.TELEGRAM_CHANNEL_ID || '@israel_amazon_il' }}
-          AMAZON_ASSOCIATE_TAG: ${{ vars.AMAZON_ASSOCIATE_TAG || 'myproject-il-20' }}
+          TELEGRAM_CHANNEL_ID: ${{ vars.TELEGRAM_CHANNEL_ID }}
+          AMAZON_ASSOCIATE_TAG: ${{ vars.AMAZON_ASSOCIATE_TAG }}
           DATABASE_PATH: data/state.db
-          USE_MOCK_DATA: ${{ github.event_name == 'workflow_dispatch' && inputs.use_mock_data || false }}
+          USE_MOCK_DATA: ${{ github.event_name == 'workflow_dispatch' && inputs.use_mock_data || 'false' }}
