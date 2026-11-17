@@ -1,15 +1,15 @@
 name: Israel Russian Deal Publisher
 
 on:
-  schedule:
-    - cron: "0 */4 * * *"
   workflow_dispatch:
     inputs:
       use_mock_data:
-        description: "Use the deterministic mock feed for a Telegram smoke test"
+        description: "Use the mock product feed"
         required: true
         type: boolean
         default: true
+  schedule:
+    - cron: "0 */4 * * *"
 
 permissions:
   contents: read
