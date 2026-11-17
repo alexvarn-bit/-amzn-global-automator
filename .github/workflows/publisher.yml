@@ -1,0 +1,53 @@
+name: Israel Russian Deal Publisher
+
+on:
+  schedule:
+    - cron: "0 */4 * * *"
+  workflow_dispatch:
+    inputs:
+      use_mock_data:
+        description: "Отправить тестовый товар из mock-фида в Telegram"
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: israel-deal-publisher
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: python -m pip install requests
+
+      - name: Restore SQLite publication state
+        uses: actions/cache@v4
+        with:
+          path: data/state.db
+          key: deal-state-${{ github.ref }}-${{ github.run_id }}
+          restore-keys: |
+            deal-state-${{ github.ref }}-
+
+      - name: Run publisher
+        run: python main.py
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHANNEL_ID: ${{ vars.TELEGRAM_CHANNEL_ID || '@israel_amazon_il' }}
+          AMAZON_ASSOCIATE_TAG: ${{ vars.AMAZON_ASSOCIATE_TAG || 'myproject-il-20' }}
+          DATABASE_PATH: data/state.db
+          USE_MOCK_DATA: ${{ github.event_name == 'workflow_dispatch' && inputs.use_mock_data || false }}
